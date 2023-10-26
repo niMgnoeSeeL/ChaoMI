@@ -1,0 +1,26 @@
+// probabilistic termination
+const bound:=10;
+secret int32 sec := [0,6];
+observable int32 obs;
+public int32 time:=0;
+public int32 rand;
+public int2 terminate:=0;
+
+simulate;
+// seed
+random rand:= random(0,9);
+
+// probabilistic termination
+while (terminate != 1) do
+  random rand:= random(1,6);
+  if (sec <= rand) then
+    assign terminate:=1;
+  fi
+  assign time:=time+1;
+od
+if (time < bound) then
+  assign obs:=time;
+else
+  assign obs:=bound;
+fi
+return;

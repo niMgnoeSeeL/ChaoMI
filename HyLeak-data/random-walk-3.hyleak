@@ -1,0 +1,40 @@
+// random walk with secret initial location
+const MAX:=3;
+secret int32 sec := [201,700];
+observable int32 obs;
+public int32 time;
+public int32 loc;
+public int32 seed;
+public int32 ran;
+
+// initial locations
+simulate;
+if (sec <= 250) then
+  assign loc:=200;
+elif (sec <= 350) then
+  assign loc:=300;
+elif (sec <= 450) then
+  assign loc:=400;
+elif (sec <= 550) then
+  assign loc:=500;
+elif (sec <= 650) then
+  assign loc:=600;
+elif (sec <= 750) then
+  assign loc:=700;
+else
+  assign loc:=800;
+fi
+
+// random walk
+assign time:=0;
+while (time < MAX) do
+  random ran := random (0,9);
+  if (ran < 5) then
+    assign loc:=loc+10;
+  else
+    assign loc:=loc-10;
+  fi
+  assign time:=time+1;
+od
+assign obs:=loc;
+return;

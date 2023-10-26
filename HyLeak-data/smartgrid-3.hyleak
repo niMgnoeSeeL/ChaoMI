@@ -1,0 +1,64 @@
+// N is the total number of users 
+const N:=9;
+
+// S is the number of users we care about
+const S:=3;
+
+// C is the possible consumptions level
+const C:=3;
+
+// M is the consumption level of the attacker
+const M:=0;
+
+// LOWT is the lower threshold 
+const LOWT:=2;
+
+// HIGHT is the upper treshold
+const HIGHT:=9;
+
+// the observable is the order given by the control system
+observable int32 order;
+observable int1 ordersign;
+
+// The secret is the consumption of each user we care about, the other consumptions are just private
+secret array [S] of int32 secretconsumption:=[0,C-1];
+public array [N-S] of int32 privateconsumption;
+
+
+// this is the projected consumption
+public int32 total:=M;
+
+// this is just a counter
+public int32 i:=0;
+public int32 j:=0;
+simulate;
+// count the secret consumptions
+while (i<S) do
+  while (j<C) do
+    if (secretconsumption[i]==j) then
+      assign total:=total+j;
+    fi  
+    assign j:=j+1;
+  od
+  assign j:=0;
+  assign i:=i+1;
+od
+
+
+// count the private consumptions
+for (pcons in privateconsumption) do
+  random pcons := random(0,C-1);
+  assign total := total + pcons;
+od
+
+if (total<LOWT) then
+  assign order := LOWT - total;
+  assign ordersign := 0;
+elif  (total > HIGHT) then
+  assign order := total - HIGHT;
+  assign ordersign := 1;
+else
+  assign order := 0;
+  assign ordersign := 0;
+fi
+return;

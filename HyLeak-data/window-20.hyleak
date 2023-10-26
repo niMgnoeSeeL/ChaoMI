@@ -1,0 +1,32 @@
+const N:=20;
+const W:=14;
+
+secret int32 sec := [0,N-1];
+public int32 minS := 0;
+public int32 sizeS := 0;
+
+observable int32 obs := 0;
+public int32 minO := 0;
+public int32 sizeO := 0;
+
+random minS := random(0,N-W-1);
+
+simulate;
+if (sec>=minS) then
+  random sizeS := random(1,W);
+  if (sec<=(minS+sizeS)) then
+    
+    random minO := random(0,N-W-1);
+    random sizeO := random(1,W);
+    random obs := random(minO,minO+sizeO);
+  else
+    
+    random obs := random(0,N-1);
+  fi
+else
+  
+  random obs := random(0,N-1);
+fi
+
+// terminate
+return;
