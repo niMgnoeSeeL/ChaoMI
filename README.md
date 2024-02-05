@@ -1,6 +1,6 @@
 # Repository Description
 
-This replication repository contains the data, result, and scripts for the paper "Accounting for Missing Events in Statistical Information Leakage Estimation" submitted to ICST 2024.
+This replication repository contains the data, result, and scripts for the paper "Accounting for Missing Events in Statistical Information Leakage Estimation" submitted to ISSTA 2025.
 
 ## Requirements
 
