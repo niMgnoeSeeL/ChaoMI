@@ -14,13 +14,21 @@ def calculate_detected_and_undetected(
 
     for i in range(num_x):
         if debug:
-            print(f"Estimating x={i}")
+            print(f"Estimating x={i}, {num_sample_per_x_list[i]} samples")
+        if not num_sample_per_x_list[i]:
+            p_xy_detected.append(np.zeros(num_y))
+            p_xy_undetected.append(np.zeros(num_y))
+            continue
         detected_i, undetected_i = estimate_multinomial(
             sample_xy_empirical[i],
             num_y,
             num_sample_per_x_list[i],
             num_non_zero_y,
             debug=debug,
+        )
+        detected_i, undetected_i = (
+            np.array(detected_i),
+            np.array(undetected_i),
         )
 
         for x in detected_i:
@@ -51,12 +59,15 @@ def get_p_xy_chao(sample_xy_empirical, is_adjust=True, debug=False):
             print(f"Recovering x={i}")
         p_xiy_detected = p_xy_detected[i]
         p_xiy_undetected = p_xy_undetected[i]
+        if sum(p_xiy_detected) == 0:
+            p_xy_chao[i] = p_xiy_detected
+            continue
         if debug:
             print(
                 f"p_xiy_detectd.shape={p_xiy_detected.shape}, p_y.shape={p_y.shape}"
             )
-        condition = (
-            lambda i: p_xiy_detected[i] <= 0 and p_y[i] > 0
+        condition = lambda i: (
+            p_xiy_detected[i] <= 0 and p_y[i] > 0
             if num_x > 1
             else p_xiy_detected[i] <= 0
         )
@@ -95,12 +106,12 @@ def get_p_xy_chao(sample_xy_empirical, is_adjust=True, debug=False):
                     print(
                         f"Exchanging {max_undetected} in max_undetected[{max_undetected_idx}] with {max_detected_less_than_undetected} in p_xiy_detected[{max_detected_less_than_undetected_idx}]"
                     )
-                p_xiy_detected[
-                    max_detected_less_than_undetected_idx
-                ] = max_undetected
-                p_xiy_undetected[
-                    max_undetected_idx
-                ] = max_detected_less_than_undetected
+                p_xiy_detected[max_detected_less_than_undetected_idx] = (
+                    max_undetected
+                )
+                p_xiy_undetected[max_undetected_idx] = (
+                    max_detected_less_than_undetected
+                )
 
         p_xy_chao[i] = p_xiy_detected
         p_xiy_undetected = p_xiy_undetected.tolist()
