@@ -4,23 +4,23 @@ We appreciate the reviewers for their valuable comments and feedback. Here is a 
 
 -Why not compare with the symbolic execution (SE)/model-counting (MC) based approach?(R2,R3)
 
-Indeed, it is reasonable to compare the proposed approach with the SE/MC-based approach. Each approach has its own strengths and limitations of scalability. In the camera-ready version, we will include such a comparison. Please see the detailed response in the following section. This work focuses on the statistical approach and its limitations with a small sample size.
+Indeed, it is reasonable to compare the proposed approach with the SE/MC-based approach. Each approach has its own strengths and limitations of scalability. In the revision, we shall discuss it in more detail in the background, including how strengths of SE/MC approach are weaknesses of the statistical approach and vice versa; however, that we focus on improvements to the statistical approach in this paper. Please see the detailed response in the following section.
 
 -Can the proposed approach be applicable to the realistic security domain?(R2,R3)
 
-Additional experiments on a stream cipher, similar to LeakWatch, demonstrate the applicability of our approach in a realistic security domain. Please see the detailed response in the following section. The results will be included in the camera-ready version.
+Additional experiments on a stream cipher, similar to LeakWatch, demonstrate the applicability of our approach in a realistic security domain. Please see the detailed response in the following section. The results will be included in the revision.
 
 -What is the impact of the overestimation?(R1)
 
-The overestimation of the MI can lead to a false sense of insecurity, which may induce unnecessary security countermeasures. We will include this in the camera-ready version.
+The overestimation of the MI can lead to a false sense of insecurity, which may induce unnecessary security countermeasures. We will include this in the revision.
 
 -Can the theoretical explanation of the proposed method be strengthened?(R1)
 
-We commit to strengthening the theoretical explanation and proof in the camera-ready version.
+We commit to strengthening the theoretical explanation and proof in the revision.
 
 -Isn't the statistical method both over and under-estimate the MI?(R3)
 
-Indeed, the statistical method can both over or under-estimate the MI. What we described in Section 2.2 is that, when the sample size is small, Miller's method may underestimate the MI, i.e., giving a false sense of safety, which is demonstrated in the experiment. We will clarify this point in the camera-ready version.
+Indeed, the statistical method can both over or under-estimate the MI due to variance the estimate may be above or below the true value. However, in Section 2.2, we are particularly concerned when an estimator *systematically* (on the average) underestimates, i.e., giving a false sense of safety, which is also demonstrated in the experiment. We will clarify this point in the revision.
 
 -Does the intuition behind Chao's estimation that the number of undetected events is close to the number of detected rare events hold for <secret,observable> pairs?(R2)
 
@@ -46,10 +46,10 @@ The cipher, resembling Crypto-1, operators on a half-byte (nibble, 4 bits) and h
   -$f_c(a,b,c,d,e)=((((a\oplus~b)\oplus~c)\oplus~d)\oplus~e)$
   -$x\land~y:=xy\bmod16$, $x\lor~y:=x^{y+1}\bmod16$, $x\oplus~y:=x+y\bmod16$
 
-We get the ground truth MI from 10K samples; it shows non-leakage of the first four nibbles (MI$=0$), and its pattern shows each of $\{(s_4,s_5,s_6,s_7),(s_{16},s_{17},s_{18},s_{19})\}$ and $\{(s_8,s_9,s_{10},s_{11}),(s_{12},s_{13},s_{14},s_{15}),(s_{20},s_{21},s_{22},s_{23})\}$ undergo the same operations $f_a$ and $f_b$, respectively. Then, subsets of samples $n=\rm10,20,50,100,200,500,1000,2000,5000$ are employed to estimate the MI using Empirical, Miller, and ChaoSRM estimators. We found that when the sample size is insufficient,
+We get the ground truth MI from 10K samples per nibble; it shows non-leakage of the first four nibbles (MI$=0$), and its pattern shows each of $\{(s_4,s_5,s_6,s_7),(s_{16},s_{17},s_{18},s_{19})\}$ and $\{(s_8,s_9,s_{10},s_{11}),(s_{12},s_{13},s_{14},s_{15}),(s_{20},s_{21},s_{22},s_{23})\}$ undergo the same operations $f_a$ and $f_b$, respectively. Then, subsets of samples $n=\rm10,20,50,100,200,500,1000,2000,5000$ per nibble are employed to estimate the MI using Empirical, Miller, and ChaoSRM estimators. We found that when the sample size is insufficient,
 
 1. Empirical has the largest error,
-2. Miller falsely indicates non-leakage for more nibbles at $n<500$, Empirical and ChaoSRM yield correct results, and
-3. ChaoSRM reveals the operation pattern at $n\geq200$, while Empirical and Miller need $n\geq1000$.
+2. Miller falsely indicates non-leakage for more nibbles at $n<200$, Empirical and ChaoSRM yield no underestimation, and
+3. ChaoSRM and empirical reveals the operation pattern much earlier than Miller.
 
-This experiment demonstrates our approach's safe and accurate MI estimation with a small sample size in a realistic security domain. Additional experiments for different cipher systems can be included in the camera-ready version if necessary.
+This experiment demonstrates our approach's safe and accurate MI estimation with a small sample size in a realistic security domain. Additional experiments for different cipher systems can be included in the revision if necessary.
