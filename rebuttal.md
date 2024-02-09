@@ -1,6 +1,6 @@
 We appreciate the reviewers for their valuable comments and feedback. Here is a summary of the issues raised and our responses:
 
-[Summary]
+# Summary
 
 -Why not compare with the symbolic execution (SE)/model-counting (MC) based approach?(R2,R3)
 
@@ -26,17 +26,17 @@ Indeed, the statistical method can both over or under-estimate the MI. What we d
 
 Yes. The intuition behind Chao's estimation that the number of undetected events is close to the number of singleton events comes from Chao's inequality (Chao, 1984), which estimates the lower bound of the number of undetected events. Throughout our experiments, we observed it mostly holds for <secret,observable> pairs.
 
-[Comparison with SE/MC-based approach]
+# Comparison with SE/MC-based approach
 
 SE/MC-based approaches are the mainstream for information leakage testing; recent works demonstrated that they can be scalable for large-scale systems either independently or in conjunction with statistical methods (Saha, 2023; Bao, 2021). Thus, we want to clarify that our claim does not argue that the statistical approach is always better than the SE/MC-based approach in all scalability issues.
 
 Both SE/MC-based and statistical approaches possess distinct strengths and scalability limitations. SE/MC-based methods may prove inaccurate or infeasible for certain systems due to operations beyond the scope of SE or MC tools, such as invoking external scripts or system calls, file reading, or network packet retrieval (e.g., `int val=call("./return-3.sh");`). In such cases, the language-agnostic statistical approach excels in handling these challenges.
 
-The primary constraint of the statistical method lies in sample size limitations. Current statistical methods yield inaccurate or unsafe outcomes with small sample sizes, the central focus of our work. To address this, we propose a novel biostatistical approach to estimate mutual information with small samples. We believe our contribution extends beyond statistical methods, enhancing general information leakage testing by seamlessly integrating with SE/MC-based approaches.
+The primary constraint of the statistical method lies in sample size limitations. Current statistical methods yield inaccurate or unsafe outcomes with small sample sizes, *the central focus of our work*. To address this, we propose a novel biostatistical approach to estimate mutual information with small samples. We believe our contribution extends beyond statistical methods, enhancing general information leakage testing by seamlessly integrating with SE/MC-based approaches.
 
-[Representative Subject for the Realistic Security Domain]
+# Representative Subject for the Realistic Security Domain
 
-To showcase the applicability of our approach in a realistic security domain, we conducted an experiment on a stream cipher, akin to LeakWatch. This experiment gauges the mutual information (MI) between the bit-flip event (secret) and the cipher system's output (observable) for each bit of the internal state to analyze 1) which bits of its internal state are leaked to the output, and 2) how is the cipher system working; from the pattern of the MI, one can infer which sets of bits undergo the same operations (for more details, please check Sec.6.2. in the LeakWatch paper).
+To showcase the applicability of our approach in a realistic security domain, we conducted an experiment on a stream cipher, akin to LeakWatch. This experiment gauges the mutual information (MI) between the bit-flip event (secret) and the cipher system's output (observable) for each bit of the internal state to analyze 1) which bits of its internal state are leaked to the output, and 2) how is the cipher system working; from the pattern of the MI, one can infer which sets of bits undergo the same operations (for more details, please check LeakWatch paper, Sec.6.2.).
 
 The cipher, resembling Crypto-1, operators on a half-byte (nibble, 4 bits) and has a 96-bit state.
 -The state of the cipher system $s=(s_0,s_1,...,s_{23})$, where each $s_i$ is 4-bit.
