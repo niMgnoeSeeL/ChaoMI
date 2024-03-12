@@ -3,6 +3,7 @@ from math import exp, ceil
 import warnings
 from collections import Counter
 from scipy.optimize import fsolve
+import numpy as np
 
 warnings.filterwarnings("ignore", "The iteration is not making good progress")
 
@@ -135,6 +136,7 @@ def gen_undetected_adj_model(
     cov_deficit_2: float,
     xixi_1: float,
     num_undetected: int,
+    # max_prob: float,
 ) -> Callable[[Tuple[float, float]], Tuple[float, float]]:
     def model(params: Tuple[float, float]) -> Tuple[float, float]:
         alpha, beta = params
@@ -211,9 +213,9 @@ def estimate_multinomial_no_doubletons(
 
     p_detected = list(
         map(
-            lambda xi: est_detected_rel_abundance(xi, n, theta)
-            if xi != 0
-            else 0,
+            lambda xi: (
+                est_detected_rel_abundance(xi, n, theta) if xi != 0 else 0
+            ),
             sample_abundance,
         )
     )
@@ -297,9 +299,27 @@ def estimate_multinomial(
     fn_detected = gen_detected_adj_model(
         sample_abundance, n, cov_1, cov_2, xixi_1
     )
-    lambda_, theta = fsolve(fn_detected, (0.5, 0.5), maxfev=10000)
+    # try different factors
+    factors = [0.1, 1, 10, 100]
+    lambdas, thetas = zip(
+        *[
+            fsolve(fn_detected, (0.5, 0.5), maxfev=10000, factor=factor)
+            for factor in factors
+        ]
+    )
+    sum_ret = [
+        np.abs(sum(fn_detected((lambda_, theta))))
+        for lambda_, theta in zip(lambdas, thetas)
+    ]
+    min_idx = np.argmin(sum_ret)
+    lambda_, theta, best_factor = (
+        lambdas[min_idx],
+        thetas[min_idx],
+        factors[min_idx],
+    )
     if debug:
-        print(f"lambda_: {lambda_}, theta: {theta}")
+        print(f"lambda_: {lambda_}, theta: {theta}, best_factor: {best_factor}")
+        print(f"result: {fn_detected((lambda_, theta))}")
 
     if not (0 <= theta <= 1):
         if debug:
@@ -308,9 +328,11 @@ def estimate_multinomial(
 
     p_detected = list(
         map(
-            lambda xi: est_detected_rel_abundance(xi, n, theta, lambda_)
-            if xi != 0
-            else 0,
+            lambda xi: (
+                est_detected_rel_abundance(xi, n, theta, lambda_)
+                if xi != 0
+                else 0
+            ),
             sample_abundance,
         )
     )
@@ -336,9 +358,26 @@ def estimate_multinomial(
     fn_undetected = gen_undetected_adj_model(
         n, cov_deficit_1, cov_deficit_2, xixi_1, f0
     )
-    alpha, beta = fsolve(fn_undetected, (0.5, 0.5), maxfev=10000)
+    # try different factors
+    alphas, betas = zip(
+        *[
+            fsolve(fn_undetected, (0.5, 0.5), maxfev=10000, factor=factor)
+            for factor in factors
+        ]
+    )
+    sum_ret = [
+        np.abs(sum(fn_undetected((alpha, beta))))
+        for alpha, beta in zip(alphas, betas)
+    ]
+    min_idx = np.argmin(sum_ret)
+    alpha, beta, best_factor = (
+        alphas[min_idx],
+        betas[min_idx],
+        factors[min_idx],
+    )
     if debug:
-        print(f"alpha: {alpha}, beta: {beta}")
+        print(f"alpha: {alpha}, beta: {beta}, best_factor: {best_factor}")
+        print(f"result: {fn_undetected((alpha, beta))}")
 
     p_undetected = [alpha * (beta**i) for i in range(1, f0 + 1)]
     if debug:
