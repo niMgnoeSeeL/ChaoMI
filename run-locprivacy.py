@@ -52,7 +52,7 @@ def load_prob(subject: str) -> pd.DataFrame:
     if subject == "pg2":
         prob_path = os.path.join("data-LocPrivacy", "prob_df-PG2.csv")
     elif subject == "opt":
-        prob_path = os.path.join("data-LocPrivacy", "prob_df-OPT.csv")
+        prob_path = os.path.join("data-LocPrivacy", "prob_df-Opt.csv")
     else:
         raise ValueError(f"Unknown subject: {subject}")
     prob_df = pd.read_csv(prob_path)
