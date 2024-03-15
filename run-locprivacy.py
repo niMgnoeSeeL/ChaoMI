@@ -13,7 +13,7 @@ from typing import Tuple
 from multiprocessing import Pool, cpu_count
 
 
-MAX_CORE = 4
+MAX_CORE = 100
 
 
 def parse_args(args):
@@ -45,12 +45,6 @@ def parse_args(args):
         type=str,
         default="data-LocPrivacy",
     )
-    arg_parser.add_argument(
-        "--seed",
-        help="the random seed to use",
-        type=int,
-        default=-1,
-    )
     return arg_parser.parse_args(args)
 
 
@@ -71,7 +65,7 @@ def entropy(p: np.ndarray) -> float:
 
 
 def estimate(
-    samples: pd.DataFrame, num_samples: int, run: int
+    samples: pd.DataFrame, num_samples: int, run: int, random_seed: int
 ) -> Tuple[float, float, float]:
     prob_emp_sec = samples.groupby("idx_sec").size() / num_samples
     prob_emp_obs = samples.groupby("idx_obs").size() / num_samples
@@ -130,6 +124,23 @@ def draw_plot(
     )
 
 
+def sampling(params):
+    prob_df, num_samples, run = params
+    random_seed = int.from_bytes(os.urandom(4), "big")
+    np.random.seed(random_seed) # use os.urandom(4) to generate a random seed
+    samples = np.random.choice(
+        prob_df.index, num_samples, p=prob_df.prob
+    )
+    samples = pd.DataFrame(
+        np.array(list(samples)),
+        columns=["lati_sec", "long_sec", "lati_obs", "long_obs"],
+    )
+    samples["idx_sec"] = list(zip(samples.lati_sec, samples.long_sec))
+    samples["idx_obs"] = list(zip(samples.lati_obs, samples.long_obs))
+    samples = samples[["idx_sec", "idx_obs"]]
+    return (samples, num_samples, run, random_seed)
+
+
 def run_experiment(args: argparse.Namespace) -> None:
     subject = args.subject
     prob_df = load_prob(subject)
@@ -153,39 +164,26 @@ def run_experiment(args: argparse.Namespace) -> None:
     print(f"Sample sizes: {sample_sizes}")
     numruns = args.numruns
 
-    params = []
-    if args.seed >= 0:
-        np.random.seed(args.seed)
+    params1 = []
     for num_samples in sample_sizes:
         for run in range(numruns):
-            samples = np.random.choice(
-                prob_df.index, num_samples, p=prob_df.prob
-            )
-            print(samples.shape)
-            print(samples[:10])
-            samples = pd.DataFrame(
-                np.array(list(samples)),
-                columns=["lati_sec", "long_sec", "lati_obs", "long_obs"],
-            )
-            samples["idx_sec"] = list(zip(samples.lati_sec, samples.long_sec))
-            samples["idx_obs"] = list(zip(samples.lati_obs, samples.long_obs))
-            samples = samples[["idx_sec", "idx_obs"]]
-            params.append((samples, num_samples, run))
+            params1.append((prob_df, num_samples, run))
+    with Pool(min(MAX_CORE, cpu_count())) as pool:
+        params2 = pool.map(sampling, params1)
+    # sort params2 by num_samples and run
+    params2 = sorted(params2, key=lambda x: (x[1], x[2]))
 
     with Pool(min(MAX_CORE, cpu_count())) as pool:
-        results = pool.starmap(estimate, params)
+        results = pool.starmap(estimate, params2)
 
     rows = []
-    for (samples, num_samples, run), (mi_emp, mi_miller, mi_chao) in zip(
-        params, results
+    for (samples, num_samples, run, seed), (mi_emp, mi_miller, mi_chao) in zip(
+        params2, results
     ):
-        print(f"num_samples={num_samples}, run={run}, mi_emp={mi_emp}")
-        print(f"num_samples={num_samples}, run={run}, mi_miller={mi_miller}")
-        print(f"num_samples={num_samples}, run={run}, mi_chao={mi_chao}")
-        rows.append([num_samples, run, mi_emp, mi_miller, mi_chao])
+        rows.append([num_samples, run, mi_emp, mi_miller, mi_chao, seed])
     df = pd.DataFrame(
         rows,
-        columns=["num_samples", "run", "mi_emp", "mi_miller", "mi_chao"],
+        columns=["num_samples", "run", "mi_emp", "mi_miller", "mi_chao", "seed"],
     )
     df.to_csv(
         os.path.join(args.outputdir, f"mi-{subject}.csv"),
