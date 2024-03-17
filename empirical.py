@@ -12,7 +12,7 @@ def mi_from_p_xy(p_xy: npt.NDArray[np.float64]) -> float:
     p_x = np.sum(p_xy, axis=1)
 
     h_x = shannon_entropy(p_x)
-    h_xy = shannon_entropy(p_xy)
+    h_xy = shannon_entropy(p_xy) # this is the conditional entropy
 
     return h_x - h_xy
 
