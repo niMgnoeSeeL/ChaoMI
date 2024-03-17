@@ -33,6 +33,7 @@ def esti_mp(params):
         iter_idx,
         num_samples_per_x,
         estimator,
+        chao_idx,
         samples,
         num_x,
         num_y,
