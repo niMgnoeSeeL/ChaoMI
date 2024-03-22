@@ -3,3 +3,7 @@ venv
 __pycache__/
 .DS_Store
 *.code-workspace
+exclude/
+data-LocPrivacy/Gowalla_totalCheckins.txt
+data-LocPrivacy/prob_df-Opt.csv
+data-LocPrivacy/prob_df-PG2.csv

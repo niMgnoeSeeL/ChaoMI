@@ -127,10 +127,8 @@ def draw_plot(
 def sampling(params):
     prob_df, num_samples, run = params
     random_seed = int.from_bytes(os.urandom(4), "big")
-    np.random.seed(random_seed) # use os.urandom(4) to generate a random seed
-    samples = np.random.choice(
-        prob_df.index, num_samples, p=prob_df.prob
-    )
+    np.random.seed(random_seed)  # use os.urandom(4) to generate a random seed
+    samples = np.random.choice(prob_df.index, num_samples, p=prob_df.prob)
     samples = pd.DataFrame(
         np.array(list(samples)),
         columns=["lati_sec", "long_sec", "lati_obs", "long_obs"],
@@ -183,7 +181,14 @@ def run_experiment(args: argparse.Namespace) -> None:
         rows.append([num_samples, run, mi_emp, mi_miller, mi_chao, seed])
     df = pd.DataFrame(
         rows,
-        columns=["num_samples", "run", "mi_emp", "mi_miller", "mi_chao", "seed"],
+        columns=[
+            "num_samples",
+            "run",
+            "mi_emp",
+            "mi_miller",
+            "mi_chao",
+            "seed",
+        ],
     )
     df.to_csv(
         os.path.join(args.outputdir, f"mi-{subject}.csv"),
