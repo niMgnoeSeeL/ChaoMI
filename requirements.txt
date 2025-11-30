@@ -1,8 +1,8 @@
 # python3 is required to run this artifact.
 # required python packages
-numpy
-scipy
-pandas
-matplotlib
-seaborn
-jupyter
+numpy==2.3.5
+scipy==1.16.3
+pandas==2.3.3
+matplotlib==3.10.7
+seaborn==0.13.2
+jupyter==1.1.1
